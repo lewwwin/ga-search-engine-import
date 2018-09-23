@@ -2,6 +2,7 @@
 Search Engine Importer Bookmarklet for Google Analytics
 
 Here you'll find a code for a bookmark in Chrome that will help you import a list of additional organic search engines.
+
 Google Analytics recognizes around 60 of the most popular search engines (https://support.google.com/analytics/answer/2795821?hl=en). 
 The rest goes to your data as a referral medium. Replace referrals that are search engines in organic.
 Here you will find my list of referrals that should be recognized as organic: https://docs.google.com/spreadsheets/d/1n92cjgX4ocDellvVVGHuZ3hlyGk3mw_3J7TBhucHoV0/edit?usp=sharing
