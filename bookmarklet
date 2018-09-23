@@ -1,0 +1,109 @@
+( function($) {
+		var iframewindow = frames['galaxy'], token = iframewindow.preload.token.value, findIdRegex = /(?:Settings\/)([a-z0-9]+)(?:\/)/ig, id = findIdRegex.exec(iframewindow.location.hash)[1], $overlay = $('<div></div>').css({
+			background : 'White',
+			width : '100%',
+			height : '100%',
+			position : 'fixed',
+			'z-index' : 999,
+			top : '0px',
+			opacity : '0.65'
+		}).appendTo('body'), $status = $('<div>no data</div>').css({
+			'font-size' : '1.25em',
+			'font-weight' : 'bolder',
+			padding : '10px 0'
+		}), $textarea = $('<textarea class=\'_GAYib\' placeholder=\'eg. search.com; search_param\'></textarea>').css({
+			width : '100%',
+			height : '150px'
+		}), $okBtn = $('<button class=\'_GAYe _GAy\'>Import</button>').click(function() {
+			var rows = csvJSON($textarea.val());
+
+			$textarea.prop('disabled', true).val('Please wait... It may take few minutes.');
+			$okBtn.prop('disabled', true);
+
+			$status.text('initializing!');
+
+			send(0, rows, $status);
+
+		}), $cancelBtn = $('<div class=\'btn action\'>Cancel</div>').click(function() {
+			$dialog.remove();
+			$overlay.remove();
+		}), $dialog = $('<div class=\'_GAZVb\'></div>').css({
+			width : '450px',
+			height : '350px',
+			position : 'absolute',
+			top : '50%',
+			left : '50%',
+			'margin-top' : '-200px',
+			'margin-left' : '-225px',
+			'z-index' : 9999,
+			background: 'White',
+			border: 'solid 1px Gray',
+			padding: '16px'
+		}).append('<div class=\'_GALwb\'>Import search engines:</div>').append('<div class=\'_GAC9\'><div class=\'_GAZC\'>Search engine list new line separated</div></div>').append($('<div class=\'_GAPI\'></div>').append($textarea)).append($status).append($('<div class=\'_GAWs _GAaBb\'></div>').append($okBtn).append($cancelBtn)).append('<p>I\'m looking for a job in webdev. Catch me at <a href=\'http://realhe.ro\'>realhe.ro</a>.').appendTo('body');
+
+		var send = function(i, r, $c) {
+			var value = r[i];
+
+			console.log('Doing row ' + i + ' from ' + r.length + ' rows.');
+
+			if (r.length > i) {
+				$c.text((i + 1) + '/' + r.length);
+
+				$.ajax({
+				  type: 'POST',
+				  url: 'https://analytics.google.com/analytics/web/submitForm?m.page=TrackingOrganicSearchSources&ds=' + id + '&sid=editOrganicSearch&hl=pl&authuser=0',
+				  timeout: 0,
+				  dataType: 'text',
+				  data: {
+					token : token,
+					domainName : value[0],
+					queryParam : value[1],
+					editMode : 'CREATE',
+					etnityVersion : 1413823458010
+					},
+				    success: function(msg, textStatus, jqXHR) {
+						console.log('DONE FIRED!');
+						if(msg === '') {
+							console.log('ERROR: Empty response! Retrying!');
+							setTimeout(function() { send(i, r, $c); }, 1000);
+						} else {
+							if(jqXHR.readyState === 4) {
+								console.log('success!');
+								setTimeout(function() { send(++i, r, $c); }, 1000);
+						   } 
+						}
+					}, 
+					error: function(jqXHR, err) {
+						console.log('Error status: ' + err + ' RETRYING!');
+					}
+				});
+				
+			} else {
+				location.reload();
+			}
+		};
+
+		var csvJSON = function(csv) {
+
+			var lines = csv.split('\n');
+
+			var result = [];
+
+			for (var i = 0; i < lines.length; i++) {
+
+				if (lines[i] == '') {
+					continue;
+				}
+				var obj = {};
+				var currentline = lines[i].split(';');
+
+				obj[0] = currentline[0];
+				obj[1] = currentline[1];
+				result.push(obj);
+
+			}
+
+			return result;
+		};
+
+	}(jQuery));
